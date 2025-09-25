@@ -1,13 +1,13 @@
-#include <data.h>
-#include <board-io/sensors.h>
-#include <havoc.h>
-#include <BME280.h>  
+
+#include "Arduino.h"
+#include "Utils.h"
+#include "BME280.h"  
 
 BME280_Class bme; 
 
-void BME280::init() {
-    while (!bme.begin()) {
-        // TODO ERROR
+Error BME280::init() {
+    if (!bme.begin()) {
+        return BME_ERROR;
     }
     bme.mode(ForcedMode); // Force one measurement to begin
     bme.setOversampling(TemperatureSensor,Oversample16);
