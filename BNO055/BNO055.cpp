@@ -1,38 +1,62 @@
-#include <optional>
-#include "data.h"
-#include "havoc.h"
-#include "board-io/sensors.h"
+#include "Arduino.h"
+#include "Utils.h"
 #include <EEPROM.h>
+
 
 Adafruit_BNO055 bno = Adafruit_BNO055(55);
 sensors_event_t event;
 
-void BNO055::init() {
-    if(!bno.begin())
-    {
-        logger.writeErrorMessage("BNO055 was not found.");
-        // TODO ERROR
+Error BNO055::init() {
+    if(!bno.begin()) {
+        return BNO_ERROR;  
     }
 }
 
 bool BNO055::prefetchData() {
     imu::Vector<3> fetchedAcceleration = bno.getVector(Adafruit_BNO055::VECTOR_ACCELEROMETER);
-    acceleration = {fetchedAcceleration.x(), fetchedAcceleration.y(), fetchedAcceleration.z()};
+    accelX = fetchedAcceleration.x();
+    accelY = fetchedAcceleration.y();
+    accelZ = fetchedAcceleration.z();
+
     imu::Vector<3> fetchedGyro = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
-    gyro = {fetchedGyro.x(), fetchedGyro.y(), fetchedGyro.z()};
+    gyroX = fetchedGyro.x();
+    gyroY = fetchedGyro.y(); 
+    gyroZ = fetchedGyro.z();
+
     imu::Vector<3> fetchedOrientation = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
-    orientation = {fetchedOrientation.x(), fetchedOrientation.y(), fetchedOrientation.z()};
+    orientX = fetchedOrientation.x(); 
+    orientY = fetchedOrientation.y();
+    orientZ = fetchedOrientation.z();
+
     return true;
 }
 
-std::optional<Vector> BNO055::getAcceleration() {
-    return acceleration;
+double BNO055::getAccelerationX() {
+    return accelX;
+}
+double BNO055::getAccelerationY() {
+    return accelY;
+}
+double BNO055::getAccelerationZ() {
+    return accelZ;
 }
 
-std::optional<Vector> BNO055::getGyro() {
-    return gyro;
+double BNO055::getGyroX() {
+    return gyroX;
+}
+double BNO055::getGyroY() {
+    return gyroY;
+}
+double BNO055::getGyroZ() {
+    return gyroZ;
 }
 
-std::optional<Vector> BNO055::getOrientation() {
-    return orientation;
+double BNO055::getOrientationX() {
+    return orientX;
+}
+double BNO055::getOrientationY() {
+    return orientY;
+}
+double BNO055::getOrientationZ() {
+    return orientZ;
 }
