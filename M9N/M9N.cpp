@@ -1,16 +1,21 @@
-#include <Arduino.h>
+#include "Arduino.h"
 #include <SparkFun_u-blox_GNSS_Arduino_Library.h>
-#include <data.h>
-#include <optional>
-#include "utilities/time.h"
-#include "board-io/sensors.h"
-#include "havoc.h"
+#include "Utils.h"
+#include "M9N.h"
 
- Position mostRecentPos;
- UTCTime mostRecentTime;
- int mostRecentSIV;
+int mostRecentYear = 0;
+int mostRecentMonth = 0;
+int mostRecentDay = 0;
+int mostRecentHour = 0;
+int mostRecentMinute = 0;
+int mostRecentSecond = 0;
+int mostRecentSIV = 0;
+double mostRecentLongitude = 0.0;
+double mostRecentLatitude = 0.0;
+double mostRecentAltitude = 0.0;
 
- void pvtCallback(UBX_NAV_PVT_data_t *ubxDataStruct) {
+
+void pvtCallback(UBX_NAV_PVT_data_t *ubxDataStruct) {
     mostRecentPos = {
         ((double)ubxDataStruct->lat) * pow(10, -7),
         ((double)ubxDataStruct->lon) * pow(10, -7),
@@ -28,47 +33,80 @@
 }
 
 void M9N::init() {
-    while (!m9n.begin()) {
-        // TODO ERROR
+    if (!m9n.begin()) {
+        return M9N_ERROR;
     }
     m9n.setI2COutput(COM_TYPE_UBX);
     m9n.setNavigationFrequency(5);
     if (!m9n.setDynamicModel(DYN_MODEL_AIRBORNE4g)) {
-        // TODO ERROR
+        return M9N_ERROR;
     }
     m9n.saveConfiguration();
     m9n.setAutoPVTcallbackPtr(&pvtCallback);
 
-    bool sivCheck = config.waitForGPSLock;
-    while (sivCheck) {
-        m9n.checkUblox();
-        m9n.checkCallbacks();
-        switch (mostRecentSIV) {
-            // TODO ERRORS
-            default:
-                sivCheck = false;
-                break;
-        }
-    }
+    // bool sivCheck = config.waitForGPSLock;
+
+    // Make it not block
+    // while (sivCheck) {
+    //     m9n.checkUblox();
+    //     m9n.checkCallbacks();
+    //     switch (mostRecentSIV) {
+    //         // TODO ERRORS
+    //         default:
+    //             sivCheck = false;
+    //             break;
+    //     }
+    // }
 }
 
 bool M9N::prefetchData() {
     m9n.checkUblox();
     m9n.checkCallbacks();
+    longitude = mostRecentLongitude;
+    latitude = mostRecentLatitude;
+    altitude = mostRecentAltitude;
+    year = mostRecentYear;
+    month = mostRecentMonth;
+    day = mostRecentDay;
+    hour = mostRecentHour;
+    minute = mostRecentMinute;
+    second = mostRecentSecond;
+    SIV = mostRecentSIV;
     pos = mostRecentPos;
     time = mostRecentTime;
     SIV = mostRecentSIV;
     return true;
 }
 
-std::optional<Position> M9N::getPosition() {
-    return pos;
+double M9N::getLatitude() {
+    return latitude;
+}
+double M9N::getLongitude() {
+    return longitude;
+}
+double M9N::getAltitude(){
+    return altitude;
 }
 
-std::optional<UTCTime> M9N::getUTCTime() {
-    return time;
+int M9N::getYear() {
+    return year;
+}
+int M9N::getMonth() {
+    return month;
+}
+int M9N::getDay() {
+    return day;
+}
+int M9N::getHour() {
+    return hour;
+}
+int M9N::getMinute() {
+    return minute;
+}
+int M9N::getSecond() {
+    return second;
 }
 
-std::optional<int> M9N::getSIV() {
+int M9N::getSIV() {
     return SIV;
 }
