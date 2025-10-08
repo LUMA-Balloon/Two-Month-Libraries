@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 <<<<<<<< HEAD:SHC_BME280/SHC_BME280.cpp
 #include "Utils.h"
 #include "SHC_BME280.h"
@@ -7,8 +6,6 @@
 
 
 ========
-=======
->>>>>>> refs/remotes/origin/SamsUpdates
 <<<<<<<< Updated upstream:SHC_BME280/BME280.cpp
 
 #include "Arduino.h"
@@ -25,22 +22,15 @@
 <<<<<<<< Updated upstream:SHC_BME280/BME280.cpp
 Error BME280::init() {
 ========
-<<<<<<< HEAD
 >>>>>>>> refs/remotes/origin/SamsUpdates:SHC_BME280/BME280.cpp
-=======
->>>>>>> refs/remotes/origin/SamsUpdates
 
 Error SHC_BME280::init() {
     // BME280::Settings settings;
     // settings.i2cAddress = 0x77;
-<<<<<<< HEAD
 <<<<<<<< HEAD:SHC_BME280/SHC_BME280.cpp
 ========
 >>>>>>>> Stashed changes:SHC_BME280/SHC_BME280.cpp
 >>>>>>>> refs/remotes/origin/SamsUpdates:SHC_BME280/BME280.cpp
-=======
->>>>>>>> Stashed changes:SHC_BME280/SHC_BME280.cpp
->>>>>>> refs/remotes/origin/SamsUpdates
     if (!bme.begin()) {
         return BME_ERROR;
     }
