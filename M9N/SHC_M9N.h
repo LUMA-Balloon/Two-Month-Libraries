@@ -43,6 +43,7 @@ public:
     int getHour();
     int getMinute();
     int getSecond();
+    unsigned int getUnixTime();
     int getSIV();
 };
 

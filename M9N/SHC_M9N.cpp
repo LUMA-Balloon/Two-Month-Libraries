@@ -45,6 +45,35 @@ void pvtCallback(UBX_NAV_PVT_data_t *ubxDataStruct) {
     mostRecentSIV = ubxDataStruct->numSV;
 }
 
+// Copied directly from the SparkFun library, except we use the data we've already got from the callback
+// instead of polling for new data (which takes too long!)
+//
+// I would much rather calculate directly using the GPS week and time-of-week, but we do not currently
+// have time for that. For future reference the formula then would be:
+// (week * 604800) + (timeOfWeek / 1000) + 315964800 - leapCount
+// Where:
+// - 604800 is "seconds in a week"
+// - timeOfWeek is milliseconds
+// - 315964800 is "seconds between Unix epoch and GPS epoch" (10 years, 6 days)
+// - leapCount is the current number of leap seconds in Unix time
+//
+// For now, this will do. Also, the above would probably slow down the GPS due to requiring
+// RAWX data packets that have a LOT more data in them.
+uint32_t calculateUnixTime()
+{
+  uint32_t t = SFE_UBLOX_DAYS_FROM_1970_TO_2020;                                                   // Jan 1st 2020 as days from Jan 1st 1970
+  t += (uint32_t)SFE_UBLOX_DAYS_SINCE_2020[mostRecentYear - 2020];                                 // Add on the number of days since 2020
+  t += (uint32_t)SFE_UBLOX_DAYS_SINCE_MONTH[mostRecentYear % 4 == 0 ? 0 : 1][mostRecentMonth - 1]; // Add on the number of days since Jan 1st
+  t += (uint32_t)mostRecentDay - 1;                                                                // Add on the number of days since the 1st of the month
+  t *= 24;                                                                                         // Convert to hours
+  t += (uint32_t)mostRecentHour;                                                                   // Add on the hour
+  t *= 60;                                                                                         // Convert to minutes
+  t += (uint32_t)mostRecentMinute;                                                                 // Add on the minute
+  t *= 60;                                                                                         // Convert to seconds
+  t += (uint32_t)mostRecentSecond;                                                                 // Add on the second
+  return t;
+}
+
 Error M9N::init() {
     if (!m9n.begin()) {
         return M9N_ERROR;
@@ -116,6 +145,10 @@ int M9N::getMinute() {
 }
 int M9N::getSecond() {
     return second;
+}
+
+unsigned int M9N::getUnixTime() {
+    return (unsigned int) calculateUnixTime();
 }
 
 int M9N::getSIV() {
